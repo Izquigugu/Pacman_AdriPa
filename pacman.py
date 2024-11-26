@@ -1,28 +1,55 @@
-import random
+import pyxel
 
-from pyxel.pyxel_wrapper impor
+
 class Pacman:
-    """this class will have the attributes of different ghosts"""
-    def __init__(self, x: int, y: int, image):
-
+    def __init__(self, x: int, y: int, image, powered: bool):
         self.x = x
         self.y = y
         self.alive = True
         self.image = image
-        coin = random.randint(0,1)
-        if coin == 0:
-            self.blinking = False
-        else:
-            self.blinking = True
+        self.powered = powered
+        self.velocity = 1
 
     @property
     def x(self) -> int:
         return self.__x
+    @x.setter
+    def  x(self, x):
+        self.__x = x
+
+    @property
+    def y(self) -> int:
+        return self.__y
+    @y.setter
+    def y(self, y):
+        self.__y = y
+
     @property
     def alive(self) -> bool:
         return self.__alive
+    @alive.setter
+    def alive(self, alive):
+        self.__alive = alive
+    # Crear property de image
     @property
-    def image(self) -> str:
-        return self.__image:
-    @property
-    def
+    def powered(self) -> bool:
+        return self.__powered
+    @powered.setter
+    def powered(self, powered):
+        self.__powered = powered
+
+    def move(self):
+        if pyxel.btn(pyxel.KEY_W):
+            self.y -= self.velocity
+        if pyxel.btn(pyxel.KEY_S):
+            self.y += self.velocity
+        if pyxel.btn(pyxel.KEY_A):
+            self.x -= self.velocity
+        if pyxel.btn(pyxel.KEY_D):
+            self.x += self.velocity
+
+
+
+
+
+
