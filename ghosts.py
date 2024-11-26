@@ -5,7 +5,7 @@ from pyxel.pyxel_wrapper import image
 
 class Ghost:
     """this class will have the attributes of different ghosts"""
-    def__init__(self, x, y, image):
+    def __init__(self, x: int, y: int, image):
 
         self.x = x
         self.y = y
