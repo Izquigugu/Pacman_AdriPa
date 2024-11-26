@@ -1,8 +1,6 @@
 import random
 
-from pyxel.pyxel_wrapper import image
-
-
+from pyxel.
 class Ghost:
     """this class will have the attributes of different ghosts"""
     def __init__(self, x: int, y: int, image):
