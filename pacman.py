@@ -7,12 +7,11 @@ class Pacman:
         self.alive = True
         self.image = image
         self.powered = powered
-        self.velocity = 1
+        self.velocity = 2
         self.direction = 0
         self.animation_frame = 0
-        self.animation_speed = 5
-        self.current_sprite = 0
-        pyxel.init(160, 120)
+        self.animation_speed = 1
+        pyxel.init(400, 300)
         pyxel.load("assets/resources.pyxres")
         pyxel.run(self.update, self.draw)
 
@@ -20,10 +19,14 @@ class Pacman:
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
         self.move()
+        self.update_animation()
 
     def draw(self):
         pyxel.cls(0)
-        pyxel.blt(self.x, self.y, 0, 0, 0, 16, 16)
+        u = self.animation_frame * 16
+        v = self.direction * 16
+        pyxel.blt(self.x, self.y, 0, u, v, 16, 16)
+
 
     def move(self):
         if pyxel.btn(pyxel.KEY_W):
@@ -40,7 +43,8 @@ class Pacman:
             self.direction = 0
 
     def update_animation(self):
-        self.animation_frame = ()
+        self.animation_frame = (self.animation_frame + 1) % (
+            self.animation_speed * 6)
 
 
 
