@@ -20,6 +20,7 @@ class Pacman:
             pyxel.quit()
         self.move()
         self.update_animation()
+        self.map_limits()
 
     def draw(self):
         pyxel.cls(0)
@@ -41,6 +42,17 @@ class Pacman:
         if pyxel.btn(pyxel.KEY_D):
             self.x += self.velocity
             self.direction = 0
+
+    def map_limits(self):
+        if self.x < -16:
+            self.x = 400
+        if self.x > 400:
+            self.x = -16
+        if self.y < -16:
+            self.y = 300
+        if self.y > 300:
+            self.y = -16
+
 
     def update_animation(self):
         self.animation_frame = (self.animation_frame + 1) % (
