@@ -62,6 +62,6 @@ class Pacman:
 
 
 
-pacman = Pacman(50,50, 0, False)
+
 
 
