@@ -33,13 +33,13 @@ class Pacman:
         if pyxel.btn(pyxel.KEY_W):
             self.y -= self.velocity
             self.direction = 2
-        if pyxel.btn(pyxel.KEY_S):
+        elif pyxel.btn(pyxel.KEY_S):
             self.y += self.velocity
             self.direction = 3
-        if pyxel.btn(pyxel.KEY_A):
+        elif pyxel.btn(pyxel.KEY_A):
             self.x -= self.velocity
             self.direction = 1
-        if pyxel.btn(pyxel.KEY_D):
+        elif pyxel.btn(pyxel.KEY_D):
             self.x += self.velocity
             self.direction = 0
 
