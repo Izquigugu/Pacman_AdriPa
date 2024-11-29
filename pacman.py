@@ -11,19 +11,13 @@ class Pacman:
         self.direction = 0
         self.animation_frame = 0
         self.animation_speed = 1
-        pyxel.init(400, 300)
-        pyxel.load("assets/resources.pyxres")
-        pyxel.run(self.update, self.draw)
 
     def update(self):
-        if pyxel.btnp(pyxel.KEY_Q):
-            pyxel.quit()
         self.move()
         self.update_animation()
         self.map_limits()
 
     def draw(self):
-        pyxel.cls(0)
         u = self.animation_frame * 16
         v = self.direction * 16
         pyxel.blt(self.x, self.y, 0, u, v, 16, 16)
