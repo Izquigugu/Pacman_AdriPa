@@ -1,11 +1,11 @@
 import pyxel
 
 class Pacman:
-    def __init__(self, x: int, y: int, image: int, powered: bool):
+    def __init__(self, x: int, y: int, powered: bool):
         self.x = x
         self.y = y
         self.alive = True
-        self.image = image
+        self.image = 0
         self.powered = powered
         self.velocity = 2
         self.direction = 0
@@ -55,8 +55,16 @@ class Pacman:
 
 
     def update_animation(self):
-        self.animation_frame = (self.animation_frame + 1) % (
-            self.animation_speed * 6)
+        if (pyxel.btn(pyxel.KEY_A)) or (pyxel.btn(pyxel.KEY_S)) or (pyxel.btn(
+                pyxel.KEY_D)) or (pyxel.btn(
+                pyxel.KEY_W)):
+            self.animation_frame = (self.animation_frame + 1) % (
+                self.animation_speed * 6)
+        elif self.animation_frame == 0: # Esto es para que no se quede con
+            # la boca cerrada.
+            self.animation_frame = self.animation_frame + 1
+        else:
+            self.animation_frame = self.animation_frame
 
 
 

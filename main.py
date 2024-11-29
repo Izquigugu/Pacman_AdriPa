@@ -7,4 +7,4 @@ from pacman import Pacman
 """This would be the main program in which we will execute all the other
 ones to make the game run properly."""
 
-pacman = Pacman(50,50, 0, False)
+pacman = Pacman(200,150,False)
