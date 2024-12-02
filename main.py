@@ -11,7 +11,7 @@ ones to make the game run properly."""
 """ En esta clase App, se inicializará todo el programa. """
 class App:
     def __init__(self):
-        pyxel.init(400,300)
+        pyxel.init(256,256)
         pyxel.load("assets/resources.pyxres")
 
         self.board = Board(pyxel.tilemap(0))
@@ -26,6 +26,7 @@ class App:
 
     def draw(self):
         pyxel.cls(0)
+        self.board.draw()
         self.pacman.draw()
 
 App()

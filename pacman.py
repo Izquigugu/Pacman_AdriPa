@@ -20,7 +20,7 @@ class Pacman:
     def draw(self):
         u = self.animation_frame * 16
         v = self.direction * 16
-        pyxel.blt(self.x, self.y, 0, u, v, 16, 16)
+        pyxel.blt(self.x, self.y, 0, u, v, 16, 16, 0)
 
 
     def move(self):
@@ -39,12 +39,12 @@ class Pacman:
 
     def map_limits(self):
         if self.x < -16:
-            self.x = 400
-        if self.x > 400:
+            self.x = 256
+        if self.x > 256:
             self.x = -16
         if self.y < -16:
-            self.y = 300
-        if self.y > 300:
+            self.y = 256
+        if self.y > 256:
             self.y = -16
 
 
