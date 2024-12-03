@@ -46,17 +46,18 @@ class Ghost:
         else:
             raise ValueError("Speed must be positive.")
 
-    def update(self, pacman_x: int, pacman_y: int):
     def update(self, pacman_x, pacman_y):
         self.move(pacman_x, pacman_y)
         self.update_animation_ghost()  # Asegúrate de que esto se llame aquí
         self.map_limits()
+
     def update_animation_ghost(self):
         """
         Avanza el frame de animación automáticamente.
         """
         if pyxel.frame_count % 10 == 0:  # Cambia de frame cada 10 frames
             self.animation_frame = (self.animation_frame + 1) % 2
+
         # Calcula `u` según la dirección
         if self.direction == "right":
             self.image = self.animation_frame * 16
@@ -66,6 +67,7 @@ class Ghost:
             self.image = 64 + self.animation_frame * 16
         elif self.direction == "down":
             self.image = 96 + self.animation_frame * 16
+
     def map_limits(self):
         if self.x < -16:
             self.x = 256
@@ -75,6 +77,7 @@ class Ghost:
             self.y = 256
         if self.y > 256:
             self.y = -16
+
     def updatefrightened(self, pacman_x: int, pacman_y: int):
         """
         Update the ghost's behavior. If frightened, it moves randomly, else it chases Pac-Man.
@@ -87,10 +90,6 @@ class Ghost:
             self.move(pacman_x, pacman_y)
 
     def draw(self):
-        """
-        Draw the ghost using Pyxel's blt function.
-        """
-        pyxel.blt(self.x, self.y, 0, self.color * 16, 0, 16, 16, 0)
         pyxel.blt(self.x, self.y, 1, self.image, 0, 16, 16, 0)
 
     def move(self, pacman_x: int, pacman_y: int):
@@ -184,3 +183,4 @@ class Inky(Ghost):
         target_x = 2 * pacman_x - blinky_x
         target_y = 2 * pacman_y - blinky_y
         self.direction = "left" if self.x > target_x else "right"
+        super().move(target_x)

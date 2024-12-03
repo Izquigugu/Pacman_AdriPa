@@ -27,6 +27,7 @@ class App:
             pyxel.quit()
         self.pacman.update()
         self.ghost.update(self.pacman.x, self.pacman.y)
+
         #Que es esto?
 
     def draw(self):
@@ -34,3 +35,5 @@ class App:
         self.board.draw()
         self.pacman.draw()
         self.ghost.draw()
+
+App()
