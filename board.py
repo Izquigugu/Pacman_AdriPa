@@ -54,3 +54,5 @@ def board_item_draw(pyxel, x, y, board_item):
         TILE_SIZE
     )
 
+
+

@@ -13,11 +13,10 @@ ones to make the game run properly."""
 class App:
     def __init__(self):
         pyxel.init(256,256)
-        #Adri, aqui no se si se podría añadir esto scale = 8, caption="Pacman", fps=60 al final del parentesis
         pyxel.load("assets/resources.pyxres")
 
         self.board = Board(pyxel.tilemap(0))
-        self.pacman = Pacman(200, 150, False)
+        self.pacman = Pacman(self.board)
         self.ghost = Ghost(200, 150, False)
 
         pyxel.run(self.update, self.draw)
@@ -28,7 +27,6 @@ class App:
         self.pacman.update()
         self.ghost.update(self.pacman.x, self.pacman.y)
 
-        #Que es esto?
 
     def draw(self):
         pyxel.cls(0)
