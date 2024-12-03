@@ -58,7 +58,7 @@ class Ghost:
         """
         Draw the ghost using Pyxel's blt function.
         """
-        pyxel.blt(self.x, self.y, 0, self.color * 16, 0, 16, 16, 0)
+        pyxel.blt(self.x, self.y, 1, self.color * 16, 0, 16, 16, 0)
 
     def move(self, pacman_x: int, pacman_y: int):
         """
