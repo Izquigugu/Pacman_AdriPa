@@ -1,67 +1,154 @@
+import pyxel
+import random
+import math
+
 class Ghost:
-    def __init__(self, x, y, color="Red", velocity=1,):
+    def __init__(self, x: int, y: int, color: int, speed: int = 1):
         """
         Initialize the Ghost's attributes.
         :param x: Initial x-coordinate of the Ghost.
         :param y: Initial y-coordinate of the Ghost.
-        :param color: Color of the Ghost (default is "Red").
-        :param velocity: The speed at which the Ghost moves (default is 1).
+        :param color: Color of the Ghost (used to select its sprite).
+        :param speed: Speed at which the Ghost moves (default is 1).
         """
         self.x = x
         self.y = y
         self.color = color
-        self.state = "normal"  # Can be "normal" or "vulnerable"
-        self.velocity = velocity
+        self._speed = speed  # Use setter to control speed (optional)
+        self.direction = random.choice(['up', 'down', 'left', 'right'])
+        self.state = "normal"  # Can be "normal" or "frightened"
+        self.image = 0  # Placeholder for image reference, could be used later for sprite rendering
 
-    # Property for position
+    # Property for position (getter and setter)
     @property
     def position(self):
         return (self.x, self.y)
 
-    # Property for velocity
-    @property
-    def velocity(self):
-        return self._velocity
-
-    @velocity.setter
-    def velocity(self, value):
-        if value > 0:
-            self._velocity = value
+    @position.setter
+    def position(self, value):
+        if isinstance(value, tuple) and len(value) == 2:
+            self.x, self.y = value
         else:
-            raise ValueError("Velocity must be a positive number.")
+            raise ValueError("Position must be a tuple with x and y coordinates.")
 
-    # Method to move the Ghost
-    def move(self, direction):
-        """
-        Move the Ghost based on the given direction and velocity.
-        :param direction: Direction to move ("UP", "DOWN", "LEFT", "RIGHT").
-        """
-        if direction == "UP":
-            self.y -= self.velocity
-        elif direction == "DOWN":
-            self.y += self.velocity
-        elif direction == "LEFT":
-            self.x -= self.velocity
-        elif direction == "RIGHT":
-            self.x += self.velocity
+    # Property for speed (setter and getter)
+    @property
+    def speed(self):
+        return self._speed
 
-    # Method to make the Ghost vulnerable
-    def become_vulnerable(self):
-        """
-        Changes the Ghost's state to "vulnerable".
-        """
-        self.state = "vulnerable"
-        print(f"The {self.color} ghost is now vulnerable!")
+    @speed.setter
+    def speed(self, value):
+        if value > 0:
+            self._speed = value
+        else:
+            raise ValueError("Speed must be positive.")
 
-    # Method to reset the Ghost to normal
-    def reset_state(self):
+    def update(self, pacman_x: int, pacman_y: int):
         """
-        Resets the Ghost's state to "normal".
+        Update the ghost's behavior. If frightened, it moves randomly, else it chases Pac-Man.
+        :param pacman_x: x-coordinate of Pac-Man.
+        :param pacman_y: y-coordinate of Pac-Man.
         """
-        self.state = "normal"
-        print(f"The {self.color} ghost is back to normal!")
+        if self.state == "frightened":
+            self.frightened_move()
+        else:
+            self.move(pacman_x, pacman_y)
 
-    # String representation of the Ghost
-    def __str__(self):
-        return (f"Ghost: Color={self.color}, Position={self.position}, "
-                f"State={self.state}, Velocity={self.velocity}")
+    def draw(self):
+        """
+        Draw the ghost using Pyxel's blt function.
+        """
+        pyxel.blt(self.x, self.y, 0, self.color * 16, 0, 16, 16, 0)
+
+    def move(self, pacman_x: int, pacman_y: int):
+        """
+        General movement logic for the ghost.
+        :param pacman_x: x-coordinate of Pac-Man.
+        :param pacman_y: y-coordinate of Pac-Man.
+        """
+        # Move based on current direction
+        if self.direction == "up":
+            self.y -= self.speed
+        elif self.direction == "down":
+            self.y += self.speed
+        elif self.direction == "left":
+            self.x -= self.speed
+        elif self.direction == "right":
+            self.x += self.speed
+
+        self.change_direction(pacman_x, pacman_y)
+
+    def change_direction(self, pacman_x: int, pacman_y: int):
+        """
+        Change direction at random or based on AI logic (can be refined in subclasses).
+        :param pacman_x: x-coordinate of Pac-Man.
+        :param pacman_y: y-coordinate of Pac-Man.
+        """
+        if random.random() < 0.1:  # 10% chance to change direction
+            self.direction = random.choice(['up', 'down', 'left', 'right'])
+
+    def frightened_move(self):
+        """
+        Move randomly when frightened.
+        """
+        self.direction = random.choice(['up', 'down', 'left', 'right'])
+        if self.direction == "up":
+            self.y -= self.speed
+        elif self.direction == "down":
+            self.y += self.speed
+        elif self.direction == "left":
+            self.x -= self.speed
+        elif self.direction == "right":
+            self.x += self.speed
+
+
+class Blinky(Ghost):
+    def move(self, pacman_x: int, pacman_y: int):
+        """
+        Blinky chases Pac-Man directly.
+        :param pacman_x: x-coordinate of Pac-Man.
+        :param pacman_y: y-coordinate of Pac-Man.
+        """
+        if abs(self.x - pacman_x) > abs(self.y - pacman_y):
+            self.direction = "left" if self.x > pacman_x else "right"
+        else:
+            self.direction = "up" if self.y > pacman_y else "down"
+        super().move(pacman_x, pacman_y)
+
+
+class Pinky(Ghost):
+    def move(self, pacman_x: int, pacman_y: int, pacman_dir: str):
+        """
+        Pinky predicts Pac-Man's next move based on his direction.
+        :param pacman_x: x-coordinate of Pac-Man.
+        :param pacman_y: y-coordinate of Pac-Man.
+        :param pacman_dir: Pac-Man's current direction.
+        """
+        if pacman_dir == "up":
+            target_x, target_y = pacman_x, pacman_y - 16
+        elif pacman_dir == "down":
+            target_x, target_y = pacman_x, pacman_y + 16
+        elif pacman_dir == "left":
+            target_x, target_y = pacman_x - 16, pacman_y
+        elif pacman_dir == "right":
+            target_x, target_y = pacman_x + 16, pacman_y
+        else:
+            target_x, target_y = pacman_x, pacman_y
+
+        self.direction = "left" if self.x > target_x else "right"
+        super().move(target_x, target_y)
+
+
+class Inky(Ghost):
+    def move(self, pacman_x: int, pacman_y: int, blinky_x: int, blinky_y: int):
+        """
+        Inky moves based on a combination of Pac-Man's and Blinky's positions.
+        :param pacman_x: x-coordinate of Pac-Man.
+        :param pacman_y: y-coordinate of Pac-Man.
+        :param blinky_x: x-coordinate of Blinky.
+        :param blinky_y: y-coordinate of Blinky.
+        """
+        target_x = 2 * pacman_x - blinky_x
+        target_y = 2 * pacman_y - blinky_y
+        self.direction = "left" if self.x > target_x else "right"
+        super().move(target_x)
