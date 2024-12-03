@@ -1,6 +1,5 @@
 import pyxel
 import random
-from pacman import Pacman
 import math
 
 class Ghost:
@@ -19,8 +18,6 @@ class Ghost:
         self.direction = random.choice(['up', 'down', 'left', 'right'])
         self.state = "normal"  # Can be "normal" or "frightened"
         self.image = 0  # Placeholder for image reference, could be used later for sprite rendering
-        self.animation_speed = 1
-        self.animation_frame = 0
 
     # Property for position (getter and setter)
     @property
@@ -46,39 +43,7 @@ class Ghost:
         else:
             raise ValueError("Speed must be positive.")
 
-    def update(self, pacman_x, pacman_y):
-        self.move(pacman_x, pacman_y)
-        self.update_animation_ghost()  # Asegúrate de que esto se llame aquí
-        self.map_limits()
-
-    def update_animation_ghost(self):
-        """
-        Avanza el frame de animación automáticamente.
-        """
-        if pyxel.frame_count % 10 == 0:  # Cambia de frame cada 10 frames
-            self.animation_frame = (self.animation_frame + 1) % 2
-
-        # Calcula `u` según la dirección
-        if self.direction == "right":
-            self.image = self.animation_frame * 16
-        elif self.direction == "left":
-            self.image = 32 + self.animation_frame * 16
-        elif self.direction == "up":
-            self.image = 64 + self.animation_frame * 16
-        elif self.direction == "down":
-            self.image = 96 + self.animation_frame * 16
-
-    def map_limits(self):
-        if self.x < -16:
-            self.x = 256
-        if self.x > 256:
-            self.x = -16
-        if self.y < -16:
-            self.y = 256
-        if self.y > 256:
-            self.y = -16
-
-    def updatefrightened(self, pacman_x: int, pacman_y: int):
+    def update(self, pacman_x: int, pacman_y: int):
         """
         Update the ghost's behavior. If frightened, it moves randomly, else it chases Pac-Man.
         :param pacman_x: x-coordinate of Pac-Man.
@@ -90,7 +55,10 @@ class Ghost:
             self.move(pacman_x, pacman_y)
 
     def draw(self):
-        pyxel.blt(self.x, self.y, 1, self.image, 0, 16, 16, 0)
+        """
+        Draw the ghost using Pyxel's blt function.
+        """
+        pyxel.blt(self.x, self.y, 0, self.color * 16, 0, 16, 16, 0)
 
     def move(self, pacman_x: int, pacman_y: int):
         """
