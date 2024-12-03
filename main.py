@@ -26,6 +26,8 @@ class App:
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
         self.pacman.update()
+        self.ghost.update(self.pacman.x, self.pacman.y)
+
         #Que es esto?
 
     def draw(self):
