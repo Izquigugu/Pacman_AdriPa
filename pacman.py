@@ -36,14 +36,14 @@ class Pacman:
         bottom_tile_y = int((new_y + pacman_height - 1) / TILE_SIZE)
 
         # Asegurarse de que los índices están dentro de los límites del mapa
-        max_x = len(self.board.board_map[0]) - 1
-        max_y = len(self.board.board_map) - 1
+        max_x = len(self.board.board_map[0])
+        max_y = len(self.board.board_map)
 
         # Ajustar para teletransporte: tratar índices fuera del rango como válidos
-        left_tile_x %= (max_x + 1)
-        right_tile_x %= (max_x + 1)
-        top_tile_y %= (max_y + 1)
-        bottom_tile_y %= (max_y + 1)
+        left_tile_x %= max_x
+        right_tile_x %= max_x
+        top_tile_y %= max_y
+        bottom_tile_y %= max_y
 
         # Verificar si cualquiera de las esquinas toca un tile de tipo WALL
         if (
