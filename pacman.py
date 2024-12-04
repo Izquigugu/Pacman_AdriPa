@@ -18,6 +18,7 @@ class Pacman:
         self.move()
         self.update_animation_pacman()
         self.map_limits()
+        self.check_dot_collision()
 
     def draw(self):
         u = self.animation_frame * 16
@@ -112,3 +113,16 @@ class Pacman:
             self.animation_frame += 1
         else:
             self.animation_frame = self.animation_frame
+
+    def check_dot_collision(self):
+        tile_x = int(self.x / TILE_SIZE)
+        tile_y = int(self.y / TILE_SIZE)
+
+        if self.board.tilemap.pget(tile_x, tile_y) == BoardItem.DOTS:
+            print(f"Comiendo punto en: ({tile_x}, {tile_y})")  # Depuración
+            self.board.tilemap.pset(tile_x, tile_y, BoardItem.EMPTY_SPACE)
+            for dot in self.board.dots:
+                if dot.x == tile_x * TILE_SIZE and dot.y == tile_y * TILE_SIZE:
+                    self.board.dots.remove(dot)
+            print(len(self.board.dots))
+

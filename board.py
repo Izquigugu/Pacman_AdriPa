@@ -1,4 +1,5 @@
 import pyxel
+from dots import Dot
 
 TILE_SIZE = 8
 SPRITE_BANK = 2
@@ -9,6 +10,7 @@ class BoardItem:
     GHOSTS_DOOR = (4, 8)
     PACMAN = (5, 8)
     GHOSTS = ()
+    DOTS = (6,8)
 """ He intentado implementar el mapa ya en el juego pero todavía no soy 
 capaz, tengo que investigar a ver qué es lo que da error. """
 class Board:
@@ -20,6 +22,7 @@ class Board:
     def __init__(self, tilemap):
         self.tilemap = tilemap
         self.board_map = []
+        self.dots = []
         self.pacman_grid_x = 0
         self.pacman_grid_y = 0
         for y in range(self.HEIGHT):
@@ -27,6 +30,9 @@ class Board:
             for x in range(self.WIDTH):
                 if self.tilemap.pget(x, y) == BoardItem.WALL:
                     self.board_map[y].append(BoardItem.WALL)
+                elif self.tilemap.pget(x, y) == BoardItem.DOTS:
+                    self.board_map[y].append(BoardItem.DOTS)
+                    self.dots.append(Dot(x * 16, y * 16))
                 elif self.tilemap.pget(x, y) == BoardItem.GHOSTS_DOOR:
                     self.board_map[y].append(BoardItem.GHOSTS_DOOR)
                 elif self.tilemap.pget(x, y) == BoardItem.PACMAN:
@@ -37,10 +43,15 @@ class Board:
                     self.board_map[y].append(BoardItem.EMPTY_SPACE)
 
     def draw(self):
-        for y in range(self.HEIGHT):
+        pyxel.bltm(0, 0, 0, 0, 0, self.WIDTH * TILE_SIZE, self.HEIGHT * TILE_SIZE)
+        """for y in range(self.HEIGHT):
             for x in range(self.WIDTH):
                 board_item = self.board_map[y][x]
-                board_item_draw(pyxel, x, y, board_item)
+                board_item_draw(pyxel, x, y, board_item)"""
+        # Esta parte de abajo no funciona bien
+        #for dot in self.dots:
+            #dot.draw()
+
 
 
 def board_item_draw(pyxel, x, y, board_item):
