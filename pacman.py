@@ -5,6 +5,8 @@ class Pacman:
     def __init__(self, board):
         self.x = board.pacman_grid_x * TILE_SIZE
         self.y = board.pacman_grid_y * TILE_SIZE
+        self.tile_x = int(self.x / TILE_SIZE)
+        self.tile_y = int(self.y / TILE_SIZE)
         self.board = board
         self.alive = True
         self.image = 0
@@ -19,6 +21,7 @@ class Pacman:
         self.update_animation_pacman()
         self.map_limits()
         self.check_dot_collision()
+        self.check_powerup_collision()
 
     def draw(self):
         u = self.animation_frame * 16
@@ -115,14 +118,22 @@ class Pacman:
             self.animation_frame = self.animation_frame
 
     def check_dot_collision(self):
-        tile_x = int(self.x / TILE_SIZE)
-        tile_y = int(self.y / TILE_SIZE)
+        self.tile_x = int(self.x / TILE_SIZE)
+        self.tile_y = int(self.y / TILE_SIZE)
 
-        if self.board.tilemap.pget(tile_x, tile_y) == BoardItem.DOTS:
-            print(f"Comiendo punto en: ({tile_x}, {tile_y})")  # Depuración
-            self.board.tilemap.pset(tile_x, tile_y, BoardItem.EMPTY_SPACE)
-            for dot in self.board.dots:
-                if dot.x == tile_x * TILE_SIZE and dot.y == tile_y * TILE_SIZE:
-                    self.board.dots.remove(dot)
-            print(len(self.board.dots))
+        if self.board.tilemap.pget(self.tile_x, self.tile_y) == BoardItem.DOTS:
+            print(f"Comiendo punto en: ({self.tile_x}, {self.tile_y})")  #
+            # Depuración
+            # Se elimina el dot de la pantalla y se elimina un dot de la
+            # lista self.board.dots[].
+            self.board.tilemap.pset(self.tile_x, self.tile_y,
+                                    BoardItem.EMPTY_SPACE)
+            self.board.dots.pop()
+            print(f" Dots restantes: {len(self.board.dots)}")
+
+    def check_powerup_collision(self):
+        if (self.board.tilemap.pget(self.tile_x, self.tile_y) ==
+                BoardItem.POWERUP):
+            self.board.tilemap.pset(self.tile_x, self.tile_y, BoardItem.EMPTY_SPACE)
+            print(f"Se activó un powerup!")
 

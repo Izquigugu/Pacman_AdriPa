@@ -3,7 +3,9 @@ import pyxel
 from board import Board
 from pacman import Pacman
 from ghosts import Ghost
-
+from music import PyxelSounds
+from game import Lives
+from game import Points
 
 
 # We will import all the other files.
@@ -19,11 +21,19 @@ class App:
         self.board = Board(pyxel.tilemap(0))
         self.pacman = Pacman(self.board)
         self.ghost = Ghost(200, 150, False)
+        self.sounds = PyxelSounds()
+
+        # Lives Remaining
+        self.lives = Lives()  # Initialize Lives with 3 lives
+
+        # Points Gained
+        self.points = Points()  # Initialize Lives with 3 lives
 
         pyxel.run(self.update, self.draw)
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
+            self.sounds.stop_music()
             pyxel.quit()
         self.pacman.update()
         self.ghost.update(self.pacman.x, self.pacman.y)
@@ -34,5 +44,7 @@ class App:
         self.board.draw()
         self.pacman.draw()
         self.ghost.draw()
+        self.lives.draw()
+        self.points.draw()
 
 App()

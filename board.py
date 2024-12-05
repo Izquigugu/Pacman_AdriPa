@@ -11,6 +11,7 @@ class BoardItem:
     PACMAN = (5, 8)
     GHOSTS = ()
     DOTS = (6,8)
+    POWERUP = (7, 8)
 """ He intentado implementar el mapa ya en el juego pero todavía no soy 
 capaz, tengo que investigar a ver qué es lo que da error. """
 class Board:
@@ -33,6 +34,8 @@ class Board:
                 elif self.tilemap.pget(x, y) == BoardItem.DOTS:
                     self.board_map[y].append(BoardItem.DOTS)
                     self.dots.append(Dot(x * 16, y * 16))
+                elif self.tilemap.pget(x, y) == BoardItem.POWERUP:
+                    self.board_map[y].append(BoardItem.POWERUP)
                 elif self.tilemap.pget(x, y) == BoardItem.GHOSTS_DOOR:
                     self.board_map[y].append(BoardItem.GHOSTS_DOOR)
                 elif self.tilemap.pget(x, y) == BoardItem.PACMAN:
