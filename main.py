@@ -19,15 +19,11 @@ class App:
         pyxel.load("assets/resources.pyxres")
 
         self.board = Board(pyxel.tilemap(0))
-        self.pacman = Pacman(self.board)
+        self.points = Points()
+        self.lives = Lives()
+        self.pacman = Pacman(self.board, self.points)
         self.ghost = Ghost(200, 150, False)
         self.sounds = PyxelSounds()
-
-        # Lives Remaining
-        self.lives = Lives()  # Initialize Lives with 3 lives
-
-        # Points Gained
-        self.points = Points()  # Initialize Lives with 3 lives
 
         pyxel.run(self.update, self.draw)
 
@@ -37,6 +33,7 @@ class App:
             pyxel.quit()
         self.pacman.update()
         self.ghost.update(self.pacman.x, self.pacman.y)
+        self.points.update()
 
 
     def draw(self):

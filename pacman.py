@@ -1,13 +1,14 @@
 import pyxel
-from board import Board, BoardItem, TILE_SIZE
-
+from board import BoardItem, TILE_SIZE
+from music import PyxelSounds
 class Pacman:
-    def __init__(self, board):
+    def __init__(self, board, points):
         self.x = board.pacman_grid_x * TILE_SIZE
         self.y = board.pacman_grid_y * TILE_SIZE
         self.tile_x = int(self.x / TILE_SIZE)
         self.tile_y = int(self.y / TILE_SIZE)
         self.board = board
+        self.points = points
         self.alive = True
         self.image = 0
         self.powered = False
@@ -15,6 +16,7 @@ class Pacman:
         self.direction = 0
         self.animation_frame = 0
         self.animation_speed = 1
+        self.pyxel_sounds = PyxelSounds()
 
     def update(self):
         self.move()
@@ -34,10 +36,15 @@ class Pacman:
         pacman_height = 16
 
         # Calcular las esquinas del sprite
+        # También las mitades para evitar bugs
         left_tile_x = int(new_x / TILE_SIZE)
+        mid_left_tile_x = int((new_x + 8) / TILE_SIZE)
         right_tile_x = int((new_x + pacman_width - 1) / TILE_SIZE)
+        mid_right_tile_x = int((new_x + pacman_width/2 - 1) / TILE_SIZE)
         top_tile_y = int(new_y / TILE_SIZE)
+        mid_top_tile_y = int((new_y + 8) / TILE_SIZE)
         bottom_tile_y = int((new_y + pacman_height - 1) / TILE_SIZE)
+        mid_bottom_tile_y = int((new_y + pacman_height/2 - 1) / TILE_SIZE)
 
         # Asegurarse de que los índices están dentro de los límites del mapa
         max_x = len(self.board.board_map[0])
@@ -48,15 +55,31 @@ class Pacman:
         right_tile_x %= max_x
         top_tile_y %= max_y
         bottom_tile_y %= max_y
+        mid_left_tile_x %= max_x
+        mid_right_tile_x %= max_x
+        mid_top_tile_y %= max_y
+        mid_bottom_tile_y %= max_y
 
         # Verificar si cualquiera de las esquinas toca un tile de tipo WALL
+        # También verificamos la mitad de los lados para evitar bugs
         if (
                 self.board.board_map[top_tile_y][left_tile_x] == BoardItem.WALL
-                or self.board.board_map[top_tile_y][
+                or self.board.board_map[top_tile_y][mid_left_tile_x] ==
+                BoardItem.WALL or self.board.board_map[mid_top_tile_y][
+            left_tile_x] == BoardItem.WALL or self.board.board_map[top_tile_y][
+            right_tile_x] == BoardItem.WALL or self.board.board_map[top_tile_y][
+            mid_right_tile_x] == BoardItem.WALL or self.board.board_map[
+            mid_top_tile_y][
             right_tile_x] == BoardItem.WALL
                 or self.board.board_map[bottom_tile_y][
+            left_tile_x] == BoardItem.WALL or self.board.board_map[bottom_tile_y][
+            mid_left_tile_x] == BoardItem.WALL or self.board.board_map[
+            mid_bottom_tile_y][
             left_tile_x] == BoardItem.WALL
                 or self.board.board_map[bottom_tile_y][
+            right_tile_x] == BoardItem.WALL or self.board.board_map[bottom_tile_y][
+            mid_right_tile_x] == BoardItem.WALL or self.board.board_map[
+            mid_bottom_tile_y][
             right_tile_x] == BoardItem.WALL
         ):
             return False
@@ -129,7 +152,10 @@ class Pacman:
             self.board.tilemap.pset(self.tile_x, self.tile_y,
                                     BoardItem.EMPTY_SPACE)
             self.board.dots.pop()
+            self.points.sum_dot_points()
             print(f" Dots restantes: {len(self.board.dots)}")
+
+
 
     def check_powerup_collision(self):
         if (self.board.tilemap.pget(self.tile_x, self.tile_y) ==
