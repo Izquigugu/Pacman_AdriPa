@@ -57,7 +57,7 @@ class Board:
 
 
 
-def board_item_draw(pyxel, x, y, board_item):
+"""def board_item_draw(pyxel, x, y, board_item):
     pyxel.blt(
         x * TILE_SIZE,
         y * TILE_SIZE,
@@ -66,7 +66,7 @@ def board_item_draw(pyxel, x, y, board_item):
         board_item[1] * TILE_SIZE,
         TILE_SIZE,
         TILE_SIZE
-    )
+    )"""
 
 
 

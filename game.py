@@ -1,6 +1,7 @@
 import pyxel
 from board import Board
 
+
 class Lives:
     def __init__(self):
         self.text = "Lives: 3"  # Static text for now
