@@ -5,27 +5,24 @@ class PyxelSounds:
     HIT_DOT_SOUND_TIMEOUT = 5
     def __init__(self):
         self.hit_dot_sound_framestamp = 0
+        self.is_powered_music_playing = False
         pyxel.playm(0, loop = False)
 
     def update(self, powered):
-        #if pyxel.play_pos(0) is None:
-            #pyxel.playm(1, loop = True)
-        """if powered:
-            # Si está en estado powered, detener otras músicas y reproducir música 2
-            if pyxel.play_pos(2) is None:  # Verifica si la música 2 no está sonando
+        if powered:
+            # Si está en estado powered
+            if not self.is_powered_music_playing:  # Si la música 2 no está sonando
                 pyxel.stop()  # Detén todas las músicas
-                pyxel.playm(2, loop = True)  # Reproduce música 2 en bucle"""
-        if not powered:
+                pyxel.playm(2, loop=True)  # Reproduce música 2 en bucle
+                self.is_powered_music_playing = True  # Marca que la música 2 está sonando
+        else:
             # Si no está en estado powered
-            if (pyxel.play_pos(0) is None and pyxel.play_pos(1) is None and
-                    pyxel.play_pos(2) is None):
-                # Si la música 0 y la 1 no están sonando y la música 2
-                # tampoco,
-                # reproducir música 1
+            if self.is_powered_music_playing:
+                pyxel.stop()  # Detener música 2
+                self.is_powered_music_playing = False  # Restablece la bandera
+            if pyxel.play_pos(0) is None and pyxel.play_pos(1) is None:
+                # Reproduce música 1 si no hay otra música sonando
                 pyxel.playm(1, loop=True)
-            if pyxel.play_pos(2) is not None:
-                # Detener música 2 si está sonando y no estamos en estado powered
-                pyxel.stop(2)
 
     # Todavía no lo he puesto porque suena muy mal, no sé cómo hacerlo
     def play_eat_dot_sound(self):

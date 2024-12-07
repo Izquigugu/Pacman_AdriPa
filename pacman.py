@@ -12,7 +12,7 @@ class Pacman:
         self.alive = True
         self.image = 0
         self.powered = False
-        self.powered_timer = 10 * 30
+        self.powered_timer = 0
         self.velocity = 2
         self.direction = 0
         self.animation_frame = 0
@@ -166,13 +166,14 @@ class Pacman:
             self.pyxel_sounds.play_eat_dot_sound()
             print(f"Se activó un powerup!")
             self.powered = True
+            self.powered_timer += (10 * 30)
 
     def handle_powered_state(self):
         if self.powered:
             self.powered_timer -= 1
             if self.powered_timer <= 0:
                 self.powered = False
-                self.powered_timer = 10 * 30
+                self.powered_timer = 0
 
 
 
