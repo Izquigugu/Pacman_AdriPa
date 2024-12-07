@@ -49,7 +49,7 @@ class App:
     def load_level(self, level_index):
         self.board = Board(pyxel.tilemap(self.LEVELS[level_index]))
         self.pacman = Pacman(self.board, self.points)
-        self.ghost = Ghost(200, 180, 0, self.board)
+        self.ghost = Ghost(128, 120, 0, self.board)
         self.points.change_points_position(level_index)
         self.lives.change_lives_position(level_index)
 
@@ -59,6 +59,8 @@ class App:
             self.load_level(self.current_level)
         else:
             print("¡Game completed!")
+            self.sounds.stop_music()
+            pyxel.quit()
             # Habría que hacer una pantalla final
 
 App()

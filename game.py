@@ -3,8 +3,8 @@ from board import Board
 
 
 class Lives:
-    MAP_POSITIONS_X = [210, 224, 152]
-    MAP_POSITIONS_Y = [101, 12, 8]
+    MAP_POSITIONS_X = [210, 214, 164]
+    MAP_POSITIONS_Y = [101, 10, 6]
     def __init__(self):
         self.lives = 3
         self.x = 210
@@ -24,8 +24,8 @@ class Lives:
 
 
 class Points:
-    MAP_POSITIONS_X = [5, 5, 72]
-    MAP_POSITIONS_Y = [101, 12, 8]
+    MAP_POSITIONS_X = [5, 4, 58]
+    MAP_POSITIONS_Y = [101, 10, 6]
     def __init__(self):
         self.points = 0
         self.x = 5
