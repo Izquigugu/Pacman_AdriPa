@@ -35,8 +35,8 @@ class App:
         self.ghost.update(self.pacman.x, self.pacman.y)
         self.points.update()
         # Todavía no funciona los niveles, tengo que mirarlo
-        """if len(self.board.dots) == 0:
-            self.next_level()"""
+        if len(self.board.dots) == 0:
+            self.next_level()
 
     def draw(self):
         pyxel.cls(0)
@@ -50,6 +50,8 @@ class App:
         self.board = Board(pyxel.tilemap(self.LEVELS[level_index]))
         self.pacman = Pacman(self.board, self.points)
         self.ghost = Ghost(200, 180, 0, self.board)
+        self.points.change_points_position(level_index)
+        self.lives.change_lives_position(level_index)
 
     def next_level(self):
         self.current_level += 1
