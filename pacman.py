@@ -12,6 +12,7 @@ class Pacman:
         self.alive = True
         self.image = 0
         self.powered = False
+        self.powered_timer = 10 * 30
         self.velocity = 2
         self.direction = 0
         self.animation_frame = 0
@@ -23,7 +24,8 @@ class Pacman:
         self.update_animation_pacman()
         self.map_limits()
         self.check_dot_collision()
-        self.check_powerup_collision()
+        self.handle_powered_state()
+        print(self.powered)
 
     def draw(self):
         u = self.animation_frame * 16
@@ -156,13 +158,21 @@ class Pacman:
             self.pyxel_sounds.play_eat_dot_sound()
             print(f" Dots restantes: {len(self.board.dots)}")
 
-
-
-    def check_powerup_collision(self):
+        # Colisión con los powerups
         if (self.board.tilemap.pget(self.tile_x, self.tile_y) ==
                 BoardItem.POWERUP):
             self.board.tilemap.pset(self.tile_x, self.tile_y, BoardItem.EMPTY_SPACE)
             self.points.sum_points(50)
             self.pyxel_sounds.play_eat_dot_sound()
             print(f"Se activó un powerup!")
+            self.powered = True
+
+    def handle_powered_state(self):
+        if self.powered:
+            self.powered_timer -= 1
+            if self.powered_timer <= 0:
+                self.powered = False
+                self.powered_timer = 10 * 30
+
+
 

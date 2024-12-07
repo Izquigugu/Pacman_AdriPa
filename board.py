@@ -49,3 +49,4 @@ class Board:
         pyxel.bltm(0, 0, self.tilemap, 0, 0, self.WIDTH * TILE_SIZE,
                    self.HEIGHT * TILE_SIZE)
 
+

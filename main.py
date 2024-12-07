@@ -30,6 +30,7 @@ class App:
         if pyxel.btnp(pyxel.KEY_Q):
             self.sounds.stop_music()
             pyxel.quit()
+        self.sounds.update(self.pacman.powered)
         self.pacman.update()
         self.ghost.update(self.pacman.x, self.pacman.y)
         self.points.update()
