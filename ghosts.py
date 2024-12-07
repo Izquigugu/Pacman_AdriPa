@@ -1,64 +1,75 @@
 import pyxel
 import random
-from pacman import Pacman
-import math
+from board import BoardItem, TILE_SIZE
 
 class Ghost:
-    def __init__(self, x: int, y: int, color: int, speed: int = 1):
-        """
-        Initialize the Ghost's attributes.
-        :param x: Initial x-coordinate of the Ghost.
-        :param y: Initial y-coordinate of the Ghost.
-        :param color: Color of the Ghost (used to select its sprite).
-        :param speed: Speed at which the Ghost moves (default is 1).
-        """
+    def __init__(self, x: int, y: int, color: int, board, speed: int = 1):
         self.x = x
         self.y = y
         self.color = color
-        self._speed = speed  # Use setter to control speed (optional)
+        self.board = board
+        self._speed = speed
         self.direction = random.choice(['up', 'down', 'left', 'right'])
-        self.state = "normal"  # Can be "normal" or "frightened"
-        self.image = 0  # Placeholder for image reference, could be used later for sprite rendering
-        self.animation_speed = 1
+        self.image = 0
         self.animation_frame = 0
 
-    # Property for position (getter and setter)
-    @property
-    def position(self):
-        return (self.x, self.y)
-
-    @position.setter
-    def position(self, value):
-        if isinstance(value, tuple) and len(value) == 2:
-            self.x, self.y = value
-        else:
-            raise ValueError("Position must be a tuple with x and y coordinates.")
-
-    # Property for speed (setter and getter)
-    @property
-    def speed(self):
-        return self._speed
-
-    @speed.setter
-    def speed(self, value):
-        if value > 0:
-            self._speed = value
-        else:
-            raise ValueError("Speed must be positive.")
-
     def update(self, pacman_x, pacman_y):
-        self.move(pacman_x, pacman_y)
-        self.update_animation_ghost()  # Asegúrate de que esto se llame aquí
+        self.move()
+        self.update_animation_ghost()
         self.map_limits()
+
+    def can_move_to(self, new_x, new_y):
+        """
+        Check if the ghost can move to the given position.
+        """
+        left_tile_x = int(new_x / TILE_SIZE)
+        right_tile_x = int((new_x + 15) / TILE_SIZE)
+        top_tile_y = int(new_y / TILE_SIZE)
+        bottom_tile_y = int((new_y + 15) / TILE_SIZE)
+
+        max_x = len(self.board.board_map[0])
+        max_y = len(self.board.board_map)
+
+        # Wrap coordinates for teleportation logic
+        left_tile_x %= max_x
+        right_tile_x %= max_x
+        top_tile_y %= max_y
+        bottom_tile_y %= max_y
+
+        # Check for wall collisions
+        if (self.board.board_map[top_tile_y][left_tile_x] == BoardItem.WALL or
+            self.board.board_map[top_tile_y][right_tile_x] == BoardItem.WALL or
+            self.board.board_map[bottom_tile_y][left_tile_x] == BoardItem.WALL or
+            self.board.board_map[bottom_tile_y][right_tile_x] == BoardItem.WALL):
+            return False
+        return True
+
+    def move(self):
+        new_x, new_y = self.x, self.y
+
+        if self.direction == "up":
+            new_y -= self._speed
+        elif self.direction == "down":
+            new_y += self._speed
+        elif self.direction == "left":
+            new_x -= self._speed
+        elif self.direction == "right":
+            new_x += self._speed
+
+        # Check for collision and update position
+        if self.can_move_to(new_x, new_y):
+            self.x, self.y = new_x, new_y
+        else:
+            # If collision, choose a new random direction
+            self.direction = random.choice(['up', 'down', 'left', 'right'])
 
     def update_animation_ghost(self):
         """
-        Avanza el frame de animación automáticamente.
+        Update ghost animation frames.
         """
-        if pyxel.frame_count % 10 == 0:  # Cambia de frame cada 10 frames
+        if pyxel.frame_count % 10 == 0:
             self.animation_frame = (self.animation_frame + 1) % 2
 
-        # Calcula `u` según la dirección
         if self.direction == "right":
             self.image = self.animation_frame * 16
         elif self.direction == "left":
@@ -69,6 +80,9 @@ class Ghost:
             self.image = 96 + self.animation_frame * 16
 
     def map_limits(self):
+        """
+        Teleport ghost to the opposite side if it crosses map boundaries.
+        """
         if self.x < -16:
             self.x = 256
         if self.x > 256:
@@ -78,37 +92,11 @@ class Ghost:
         if self.y > 256:
             self.y = -16
 
-    def updatefrightened(self, pacman_x: int, pacman_y: int):
-        """
-        Update the ghost's behavior. If frightened, it moves randomly, else it chases Pac-Man.
-        :param pacman_x: x-coordinate of Pac-Man.
-        :param pacman_y: y-coordinate of Pac-Man.
-        """
-        if self.state == "frightened":
-            self.frightened_move()
-        else:
-            self.move(pacman_x, pacman_y)
-
     def draw(self):
+        """
+        Draw ghost sprite.
+        """
         pyxel.blt(self.x, self.y, 1, self.image, 0, 16, 16, 0)
-
-    def move(self, pacman_x: int, pacman_y: int):
-        """
-        General movement logic for the ghost.
-        :param pacman_x: x-coordinate of Pac-Man.
-        :param pacman_y: y-coordinate of Pac-Man.
-        """
-        # Move based on current direction
-        if self.direction == "up":
-            self.y -= self.speed
-        elif self.direction == "down":
-            self.y += self.speed
-        elif self.direction == "left":
-            self.x -= self.speed
-        elif self.direction == "right":
-            self.x += self.speed
-
-        self.change_direction(pacman_x, pacman_y)
 
     def change_direction(self, pacman_x: int, pacman_y: int):
         """

@@ -30,7 +30,6 @@ class App:
         if pyxel.btnp(pyxel.KEY_Q):
             self.sounds.stop_music()
             pyxel.quit()
-        self.sounds.update(self.pacman.powered)
         self.pacman.update()
         self.ghost.update(self.pacman.x, self.pacman.y)
         self.points.update()
@@ -49,7 +48,7 @@ class App:
     def load_level(self, level_index):
         self.board = Board(pyxel.tilemap(self.LEVELS[level_index]))
         self.pacman = Pacman(self.board, self.points)
-        self.ghost = Ghost(200, 150, False)
+        self.ghost = Ghost(200, 180, 0, self.board)
 
     def next_level(self):
         self.current_level += 1
