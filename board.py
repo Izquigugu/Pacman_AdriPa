@@ -46,27 +46,6 @@ class Board:
                     self.board_map[y].append(BoardItem.EMPTY_SPACE)
 
     def draw(self):
-        pyxel.bltm(0, 0, 0, 0, 0, self.WIDTH * TILE_SIZE, self.HEIGHT * TILE_SIZE)
-        """for y in range(self.HEIGHT):
-            for x in range(self.WIDTH):
-                board_item = self.board_map[y][x]
-                board_item_draw(pyxel, x, y, board_item)"""
-        # Esta parte de abajo no funciona bien
-        #for dot in self.dots:
-            #dot.draw()
-
-
-
-"""def board_item_draw(pyxel, x, y, board_item):
-    pyxel.blt(
-        x * TILE_SIZE,
-        y * TILE_SIZE,
-        SPRITE_BANK,
-        board_item[0] * TILE_SIZE,
-        board_item[1] * TILE_SIZE,
-        TILE_SIZE,
-        TILE_SIZE
-    )"""
-
-
+        pyxel.bltm(0, 0, self.tilemap, 0, 0, self.WIDTH * TILE_SIZE,
+                   self.HEIGHT * TILE_SIZE)
 

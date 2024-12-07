@@ -152,7 +152,8 @@ class Pacman:
             self.board.tilemap.pset(self.tile_x, self.tile_y,
                                     BoardItem.EMPTY_SPACE)
             self.board.dots.pop()
-            self.points.sum_dot_points()
+            self.points.sum_points(10)
+            self.pyxel_sounds.play_eat_dot_sound()
             print(f" Dots restantes: {len(self.board.dots)}")
 
 
@@ -161,5 +162,7 @@ class Pacman:
         if (self.board.tilemap.pget(self.tile_x, self.tile_y) ==
                 BoardItem.POWERUP):
             self.board.tilemap.pset(self.tile_x, self.tile_y, BoardItem.EMPTY_SPACE)
+            self.points.sum_points(50)
+            self.pyxel_sounds.play_eat_dot_sound()
             print(f"Se activó un powerup!")
 

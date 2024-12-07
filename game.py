@@ -22,8 +22,8 @@ class Points:
         # Display the text on the screen
         pyxel.text(5, 101, self.text, pyxel.COLOR_WHITE)
 
-    def sum_dot_points(self):
-        self.points += 10
+    def sum_points(self, sum_points):
+        self.points += sum_points
 
 """class Level:
 class Scoreboards:"""
