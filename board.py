@@ -2,7 +2,7 @@ import pyxel
 from dots import Dot
 
 TILE_SIZE = 8
-SPRITE_BANK = 3
+SPRITE_BANK = 2
 
 class BoardItem:
     WALL = (2, 8)

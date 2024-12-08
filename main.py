@@ -14,7 +14,7 @@ ones to make the game run properly."""
 
 """ En esta clase App, se inicializará todo el programa. """
 class App:
-    LEVELS = [0,1,2,3]
+    LEVELS = [0,1,2]
     HEIGHT = 32
     WIDTH = 32
     def __init__(self):
@@ -43,9 +43,10 @@ class App:
     def draw(self):
         pyxel.cls(0)
         self.board.draw()
-        self.pacman.draw()
-        for ghost in self.ghosts:
-            ghost.draw()
+        if self.current_level < len(self.LEVELS):
+            self.pacman.draw()
+            for ghost in self.ghosts:
+                ghost.draw()
         self.lives.draw()
         self.points.draw()
 
@@ -66,6 +67,6 @@ class App:
         else:
             print("¡Game completed!")
             self.sounds.stop_music()
-            pyxel.bltm(0, 0, self.tilemap(3), 0,0,self.WIDTH * TILE_SIZE, self.HEIGHT * TILE_SIZE)
+            self.board = Board(pyxel.tilemap(3))
 
 App()
