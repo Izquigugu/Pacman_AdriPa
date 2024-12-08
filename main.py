@@ -1,6 +1,6 @@
 import pyxel
 
-from board import Board
+from board import Board, TILE_SIZE
 from pacman import Pacman
 from ghosts import Blinky, Pinky, Inky, Clyde
 from music import PyxelSounds
@@ -14,7 +14,9 @@ ones to make the game run properly."""
 
 """ En esta clase App, se inicializará todo el programa. """
 class App:
-    LEVELS = [0, 1, 2]
+    LEVELS = [0,1,2,3]
+    HEIGHT = 32
+    WIDTH = 32
     def __init__(self):
         pyxel.init(256,256)
         pyxel.load("assets/resources.pyxres")
@@ -35,7 +37,6 @@ class App:
         for ghost in self.ghosts:
             ghost.update()
         self.points.update()
-        # Todavía no funciona los niveles, tengo que mirarlo
         if len(self.board.dots) == 0:
             self.next_level()
 
@@ -65,11 +66,6 @@ class App:
         else:
             print("¡Game completed!")
             self.sounds.stop_music()
-            pyxel.quit()
-            #  pyxel.bltm(0, 0, self.tilemap(número de la pantalla final), 0,
-            #  0,
-            #  self.WIDTH * TILE_SIZE,
-            #                    self.HEIGHT * TILE_SIZE)
-            # Habría que hacer una pantalla final
+            pyxel.bltm(0, 0, self.tilemap(3), 0,0,self.WIDTH * TILE_SIZE, self.HEIGHT * TILE_SIZE)
 
 App()
