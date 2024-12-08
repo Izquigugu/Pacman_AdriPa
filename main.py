@@ -14,7 +14,8 @@ ones to make the game run properly."""
 
 """ En esta clase App, se inicializará todo el programa. """
 class App:
-    LEVELS = [0,1,2]
+    LEVELS = [0,1,2] #This are the different maps and locations of lives and
+    # points
     HEIGHT = 32
     WIDTH = 32
     def __init__(self):
@@ -42,9 +43,17 @@ class App:
                     pyxel.quit()
                 self.pacman.resetting = False
             return
+        if self.pacman.eating:
+            self.pacman.eating_timer -= 1
+            if self.pacman.eating_timer <= 50:
+                self.pacman.collided_ghost.eaten_movement()
+            if self.pacman.eating_timer <= 0:
+                self.pacman.collided_ghost.eaten = False
+                self.pacman.eating = False
+            return
         self.sounds.update(self.pacman.powered)
         for ghost in self.ghosts:
-            ghost.update()
+            ghost.update(self.pacman.powered, self.pacman.powered_timer)
         self.pacman.update(self.ghosts)
         self.points.update()
         self.lives.update()

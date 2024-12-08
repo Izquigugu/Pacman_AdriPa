@@ -15,12 +15,15 @@ class Pacman:
         self.powered = False
         self.powered_timer = 0
         self.resetting = False
+        self.eating = False
         self.reset_timer = 0
+        self.eating_timer = 0
         self.velocity = 2
         self.direction = 0
         self.animation_frame = 0
         self.animation_speed = 1
         self.pyxel_sounds = PyxelSounds()
+        self.collided_ghost = None
 
     def update(self, ghosts):
         self.move()
@@ -28,14 +31,22 @@ class Pacman:
         self.map_limits()
         self.check_dot_collision()
         self.handle_powered_state()
-        collided_ghost = self.check_ghost_collision(ghosts)
-        if collided_ghost is not None and not self.resetting:
+        self.collided_ghost = self.check_ghost_collision(ghosts)
+        if (self.collided_ghost is not None and not self.resetting and not
+                self.powered):
             self.resetting = True
             self.reset_timer = 100
             self.lives.lose_lives()
             self.animation_frame = 4
-            print(f"Colisión con: {type(collided_ghost).__name__}")
+            print(f"Colisión con: {type(self.collided_ghost).__name__}")
 
+        if (self.collided_ghost is not None and not self.resetting and
+                self.powered):
+            self.eating = True
+            self.eating_timer = 70
+            self.points.sum_points(200)
+            self.collided_ghost.eaten = True
+            self.collided_ghost.scared = False
 
     def draw(self):
         if self.resetting: # Usa frames del 7 al 14
@@ -44,19 +55,6 @@ class Pacman:
             u = self.animation_frame * 16
         v = self.direction * 16
         pyxel.blt(self.x, self.y, 0, u, v, 16, 16, 0)
-
-    def resetting_animation(self): # 7 al 14
-        """
-          Actualiza el frame de animación de muerte.
-          """
-        if pyxel.frame_count % 5 == 0:  # Cambia de sprite cada 5 frames
-            self.animation_frame += 1
-
-        # Si llegamos al final de los sprites de la animación
-        if self.animation_frame > 15:  # Supongamos que la animación termina
-            # en el frame 14
-            self.animation_frame = 15  # Queda en el último sprite
-
 
     def check_ghost_collision(self, ghosts):
         pacman_centre_x = self.x + 8
@@ -177,13 +175,17 @@ class Pacman:
         else:
             self.animation_frame = self.animation_frame
 
-    """def resetting_animation(self): # 7 al 14
-        self.animation_frame = 7 * 16
+    def resetting_animation(self): # 7 al 14
+        """
+          Actualiza el frame de animación de muerte.
+          """
+        if pyxel.frame_count % 5 == 0:  # Cambia de sprite cada 5 frames
+            self.animation_frame += 1
 
-        self.resetting_animation_frame = ((self.resetting_animation_frame + 1)
-                                          % (
-            self.animation_speed * 7
-        ))"""
+        # Si llegamos al final de los sprites de la animación
+        if self.animation_frame > 15:  # Supongamos que la animación termina
+            # en el frame 14
+            self.animation_frame = 15  # Queda en el último sprite
 
 
     def check_dot_collision(self):

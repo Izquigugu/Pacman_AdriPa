@@ -1,5 +1,6 @@
 import pyxel
 import random
+import math
 from board import BoardItem, TILE_SIZE
 
 class Ghost:
@@ -11,6 +12,10 @@ class Ghost:
         self.direction = random.choice(['up', 'down', 'left', 'right'])
         self.u = 0
         self.v = sprite_v #para determinar el color de cada fantasma
+        self.v_scared = 80
+        self.v_eaten = 64
+        self.scared = False
+        self.eaten = False
         self.animation_frame = 0
 
     def reset(self, x: int, y: int, board, speed: int = 1, sprite_v: int = 0):
@@ -23,17 +28,52 @@ class Ghost:
         self.v = sprite_v  # para determinar el color de cada fantasma
         self.animation_frame = 0
 
-    def update(self):
+    def update(self, powered, powered_timer):
+        if powered:
+            self.scared = True
+        else:
+            self.scared = False
+        if self.scared:
+            self.update_scared_animation(powered_timer)
+        elif self.eaten:
+            self.eaten_animation()
+        else:
+            self.update_animation_ghost()
+
         self.move()
-        self.update_animation_ghost()
         self.map_limits()
         self.change_direction()
+
+    def eaten_movement(self):
+        if self.x < 128:
+            self.x += 3
+        if self.y < 120:
+            self.y += 3
+        if self.x > 128:
+            self.x -= 3
+        if self.y > 120:
+            self.y -= 3
+
+    def eaten_animation(self):
+        if self.direction == "right":
+            self.u = 0 * 16
+        elif self.direction == "left":
+            self.u = 1 * 16
+        elif self.direction == "up":
+            self.u = 2 * 16
+        elif self.direction == "down":
+            self.u = 3 * 16
 
     def draw(self):
         """
         Draw ghost sprite.
         """
-        pyxel.blt(self.x, self.y, 1, self.u, self.v, 16, 16, 0)
+        if self.scared:
+            pyxel.blt(self.x, self.y, 1, self.u, self.v_scared, 16, 16, 0)
+        elif self.eaten:
+            pyxel.blt(self.x, self.y, 1, self.u, self.v_eaten, 16, 16, 0)
+        else:
+            pyxel.blt(self.x, self.y, 1, self.u, self.v, 16, 16, 0)
 
     def can_move_to(self, new_x, new_y):
         # Dimensiones del sprite de Pac-Man (16x16 píxeles)
@@ -95,6 +135,15 @@ class Ghost:
             return False
         return True
 
+    def move_towards(self, target_x, target_y):
+        """Move ghost towards a target (e.g., Pac-Man)."""
+        dx = target_x - self.x
+        dy = target_y - self.y
+        distance = math.hypot(dx, dy)
+        if distance > 0:
+            self.x += self._speed * (dx / distance)
+            self.y += self._speed * (dy / distance)
+
     def move(self):
         new_x, new_y = self.x, self.y
 
@@ -129,6 +178,24 @@ class Ghost:
             self.u = 64 + self.animation_frame * 16
         elif self.direction == "down":
             self.u = 96 + self.animation_frame * 16
+
+    def update_scared_animation(self, powered_timer):
+        """
+             Actualiza la animación de los fantasmas cuando están asustados.
+             Alterna entre el fantasma azul y el blanco.
+             """
+        # Controlar el parpadeo de los fantasmas asustados usando un temporizador
+        if pyxel.frame_count % 10 == 0:  # Cada 10 frames cambia el sprite
+            self.animation_frame = (self.animation_frame + 1) % 2
+            # Alterna entre 0 y 1
+
+        if powered_timer <= (3 * 30):
+            if pyxel.frame_count % 20 in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+                self.u = (self.animation_frame * 16) + 32
+            else:
+                self.u = self.animation_frame * 16
+        else:
+            self.u = self.animation_frame * 16
 
     def map_limits(self):
         """
