@@ -2,7 +2,7 @@ import pyxel
 
 from board import Board
 from pacman import Pacman
-from ghosts import Ghost
+from ghosts import Blinky, Pinky, Inky, Clyde
 from music import PyxelSounds
 from game import Lives, Points
 
@@ -32,7 +32,8 @@ class App:
             pyxel.quit()
         self.sounds.update(self.pacman.powered)
         self.pacman.update()
-        self.ghost.update(self.pacman.x, self.pacman.y)
+        for ghost in self.ghosts:
+            ghost.update()
         self.points.update()
         # Todavía no funciona los niveles, tengo que mirarlo
         if len(self.board.dots) == 0:
@@ -42,14 +43,18 @@ class App:
         pyxel.cls(0)
         self.board.draw()
         self.pacman.draw()
-        self.ghost.draw()
+        for ghost in self.ghosts:
+            ghost.draw()
         self.lives.draw()
         self.points.draw()
 
     def load_level(self, level_index):
         self.board = Board(pyxel.tilemap(self.LEVELS[level_index]))
         self.pacman = Pacman(self.board, self.points)
-        self.ghost = Ghost(128, 120, 0, self.board)
+        self.ghosts = [Blinky(128, 120, self.board),
+                       Pinky(128, 120, self.board),
+                       Inky(128, 120, self.board),
+                       Clyde(128, 120,self.board)]
         self.points.change_points_position(level_index)
         self.lives.change_lives_position(level_index)
 
@@ -61,6 +66,10 @@ class App:
             print("¡Game completed!")
             self.sounds.stop_music()
             pyxel.quit()
+            #  pyxel.bltm(0, 0, self.tilemap(número de la pantalla final), 0,
+            #  0,
+            #  self.WIDTH * TILE_SIZE,
+            #                    self.HEIGHT * TILE_SIZE)
             # Habría que hacer una pantalla final
 
 App()

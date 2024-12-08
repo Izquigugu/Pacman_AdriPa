@@ -3,44 +3,85 @@ import random
 from board import BoardItem, TILE_SIZE
 
 class Ghost:
-    def __init__(self, x: int, y: int, color: int, board, speed: int = 1):
+    def __init__(self, x: int, y: int, board, speed: int = 1):
         self.x = x
         self.y = y
-        self.color = color
         self.board = board
         self._speed = speed
         self.direction = random.choice(['up', 'down', 'left', 'right'])
-        self.image = 0
+        self.u = 0
+        self.v = 0
         self.animation_frame = 0
 
-    def update(self, pacman_x, pacman_y):
+    def update(self):
         self.move()
         self.update_animation_ghost()
         self.map_limits()
+        self.change_direction()
+
+    def draw(self):
+        """
+        Draw ghost sprite.
+        """
+        pyxel.blt(self.x, self.y, 1, self.u, self.v, 16, 16, 0)
 
     def can_move_to(self, new_x, new_y):
-        """
-        Check if the ghost can move to the given position.
-        """
-        left_tile_x = int(new_x / TILE_SIZE)
-        right_tile_x = int((new_x + 15) / TILE_SIZE)
-        top_tile_y = int(new_y / TILE_SIZE)
-        bottom_tile_y = int((new_y + 15) / TILE_SIZE)
+        # Dimensiones del sprite de Pac-Man (16x16 píxeles)
+        ghost_width = 16
+        ghost_height = 16
 
+        # Calcular las esquinas del sprite
+        # También las mitades para evitar bugs
+        left_tile_x = int(new_x / TILE_SIZE)
+        mid_left_tile_x = int((new_x + 8) / TILE_SIZE)
+        right_tile_x = int((new_x + ghost_width - 1) / TILE_SIZE)
+        mid_right_tile_x = int((new_x + ghost_width / 2 - 1) / TILE_SIZE)
+        top_tile_y = int(new_y / TILE_SIZE)
+        mid_top_tile_y = int((new_y + 8) / TILE_SIZE)
+        bottom_tile_y = int((new_y + ghost_height - 1) / TILE_SIZE)
+        mid_bottom_tile_y = int((new_y + ghost_height / 2 - 1) / TILE_SIZE)
+
+        # Asegurarse de que los índices están dentro de los límites del mapa
         max_x = len(self.board.board_map[0])
         max_y = len(self.board.board_map)
 
-        # Wrap coordinates for teleportation logic
+        # Ajustar para teletransporte: tratar índices fuera del rango como válidos
         left_tile_x %= max_x
         right_tile_x %= max_x
         top_tile_y %= max_y
         bottom_tile_y %= max_y
+        mid_left_tile_x %= max_x
+        mid_right_tile_x %= max_x
+        mid_top_tile_y %= max_y
+        mid_bottom_tile_y %= max_y
 
-        # Check for wall collisions
-        if (self.board.board_map[top_tile_y][left_tile_x] == BoardItem.WALL or
-            self.board.board_map[top_tile_y][right_tile_x] == BoardItem.WALL or
-            self.board.board_map[bottom_tile_y][left_tile_x] == BoardItem.WALL or
-            self.board.board_map[bottom_tile_y][right_tile_x] == BoardItem.WALL):
+        # Verificar si cualquiera de las esquinas toca un tile de tipo WALL
+        # También verificamos la mitad de los lados para evitar bugs
+        if (
+                self.board.board_map[top_tile_y][left_tile_x] == BoardItem.WALL
+                or self.board.board_map[top_tile_y][mid_left_tile_x] ==
+                BoardItem.WALL or self.board.board_map[mid_top_tile_y][
+            left_tile_x] == BoardItem.WALL or self.board.board_map[top_tile_y][
+            right_tile_x] == BoardItem.WALL or
+                self.board.board_map[top_tile_y][
+                    mid_right_tile_x] == BoardItem.WALL or
+                self.board.board_map[
+                    mid_top_tile_y][
+                    right_tile_x] == BoardItem.WALL
+                or self.board.board_map[bottom_tile_y][
+            left_tile_x] == BoardItem.WALL or
+                self.board.board_map[bottom_tile_y][
+                    mid_left_tile_x] == BoardItem.WALL or self.board.board_map[
+            mid_bottom_tile_y][
+            left_tile_x] == BoardItem.WALL
+                or self.board.board_map[bottom_tile_y][
+            right_tile_x] == BoardItem.WALL or
+                self.board.board_map[bottom_tile_y][
+                    mid_right_tile_x] == BoardItem.WALL or
+                self.board.board_map[
+                    mid_bottom_tile_y][
+                    right_tile_x] == BoardItem.WALL
+        ):
             return False
         return True
 
@@ -71,13 +112,13 @@ class Ghost:
             self.animation_frame = (self.animation_frame + 1) % 2
 
         if self.direction == "right":
-            self.image = self.animation_frame * 16
+            self.u = self.animation_frame * 16
         elif self.direction == "left":
-            self.image = 32 + self.animation_frame * 16
+            self.u = 32 + self.animation_frame * 16
         elif self.direction == "up":
-            self.image = 64 + self.animation_frame * 16
+            self.u = 64 + self.animation_frame * 16
         elif self.direction == "down":
-            self.image = 96 + self.animation_frame * 16
+            self.u = 96 + self.animation_frame * 16
 
     def map_limits(self):
         """
@@ -92,19 +133,11 @@ class Ghost:
         if self.y > 256:
             self.y = -16
 
-    def draw(self):
-        """
-        Draw ghost sprite.
-        """
-        pyxel.blt(self.x, self.y, 1, self.image, 0, 16, 16, 0)
-
-    def change_direction(self, pacman_x: int, pacman_y: int):
+    def change_direction(self):
         """
         Change direction at random or based on AI logic (can be refined in subclasses).
-        :param pacman_x: x-coordinate of Pac-Man.
-        :param pacman_y: y-coordinate of Pac-Man.
         """
-        if random.random() < 0.1:  # 10% chance to change direction
+        if random.random() < 0.02:  # 10% chance to change direction
             self.direction = random.choice(['up', 'down', 'left', 'right'])
 
     def frightened_move(self):
@@ -113,62 +146,26 @@ class Ghost:
         """
         self.direction = random.choice(['up', 'down', 'left', 'right'])
         if self.direction == "up":
-            self.y -= self.speed
+            self.y -= self._speed
         elif self.direction == "down":
-            self.y += self.speed
+            self.y += self._speed
         elif self.direction == "left":
-            self.x -= self.speed
+            self.x -= self._speed
         elif self.direction == "right":
-            self.x += self.speed
-
+            self.x += self._speed
 
 class Blinky(Ghost):
-    def move(self, pacman_x: int, pacman_y: int):
-        """
-        Blinky chases Pac-Man directly.
-        :param pacman_x: x-coordinate of Pac-Man.
-        :param pacman_y: y-coordinate of Pac-Man.
-        """
-        if abs(self.x - pacman_x) > abs(self.y - pacman_y):
-            self.direction = "left" if self.x > pacman_x else "right"
-        else:
-            self.direction = "up" if self.y > pacman_y else "down"
-        super().move(pacman_x, pacman_y)
-
+    def __init__(self, blinky_x, blinky_y, board):
+        super().__init__(blinky_x, blinky_y, board, speed=1)
 
 class Pinky(Ghost):
-    def move(self, pacman_x: int, pacman_y: int, pacman_dir: str):
-        """
-        Pinky predicts Pac-Man's next move based on his direction.
-        :param pacman_x: x-coordinate of Pac-Man.
-        :param pacman_y: y-coordinate of Pac-Man.
-        :param pacman_dir: Pac-Man's current direction.
-        """
-        if pacman_dir == "up":
-            target_x, target_y = pacman_x, pacman_y - 16
-        elif pacman_dir == "down":
-            target_x, target_y = pacman_x, pacman_y + 16
-        elif pacman_dir == "left":
-            target_x, target_y = pacman_x - 16, pacman_y
-        elif pacman_dir == "right":
-            target_x, target_y = pacman_x + 16, pacman_y
-        else:
-            target_x, target_y = pacman_x, pacman_y
-
-        self.direction = "left" if self.x > target_x else "right"
-        super().move(target_x, target_y)
-
+    def __init__(self, pinky_x, pinky_y, board):
+        super().__init__(pinky_x, pinky_y, board, speed=1)
 
 class Inky(Ghost):
-    def move(self, pacman_x: int, pacman_y: int, blinky_x: int, blinky_y: int):
-        """
-        Inky moves based on a combination of Pac-Man's and Blinky's positions.
-        :param pacman_x: x-coordinate of Pac-Man.
-        :param pacman_y: y-coordinate of Pac-Man.
-        :param blinky_x: x-coordinate of Blinky.
-        :param blinky_y: y-coordinate of Blinky.
-        """
-        target_x = 2 * pacman_x - blinky_x
-        target_y = 2 * pacman_y - blinky_y
-        self.direction = "left" if self.x > target_x else "right"
-        super().move(target_x)
+    def __init__(selfself, inky_x, inky_y, board):
+        super().__init__(inky_x, inky_y, board, speed=1)
+
+class Clyde(Ghost):
+    def __init__(self, clyde_x, clyde_y, board):
+        super().__init__(clyde_x, clyde_y, board, speed=2)
