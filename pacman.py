@@ -3,14 +3,24 @@ from board import BoardItem, TILE_SIZE
 from music import PyxelSounds
 class Pacman:
     def __init__(self, board, points, lives):
+        """
+        Initialize Pac-Man's attributes.
+        :param board: The game board where Pac-Man will move.
+        :param points: The points system to track the score.
+        :param lives: The lives system to track Pac-Man's remaining lives.
+        """
+        # Positioning Pac-Man based on the board grid
         self.x = board.pacman_grid_x * TILE_SIZE
         self.y = board.pacman_grid_y * TILE_SIZE
+        # Tile position (grid-based coordinates)
         self.tile_x = int(self.x / TILE_SIZE)
         self.tile_y = int(self.y / TILE_SIZE)
+        # Game board and state tracking
         self.board = board
         self.points = points
         self.lives = lives
         self.alive = True
+        # Sprite-related attributes
         self.image = 0
         self.powered = False
         self.powered_timer = 0
@@ -18,22 +28,32 @@ class Pacman:
         self.eating = False
         self.reset_timer = 0
         self.eating_timer = 0
+        # Movement attributes
         self.velocity = 2
         self.direction = 0
+        # Animation attributes
         self.animation_frame = 0
         self.animation_speed = 1
+        # Sounds and collision
         self.pyxel_sounds = PyxelSounds()
         self.collided_ghost = None
 
     def update(self, ghosts):
+        """
+        Update Pac-Man's behavior each frame:
+        - Handle movement, animations, map limits, and collisions.
+        :param ghosts: List of ghost objects in the game.
+        """
         self.move()
         self.update_animation_pacman()
         self.map_limits()
         self.check_dot_collision()
         self.handle_powered_state()
+        # Check for ghost collision
         self.collided_ghost = self.check_ghost_collision(ghosts)
         if (self.collided_ghost is not None and not self.resetting and not
                 self.powered):
+            # Pac-Man collided with a ghost and is not powered
             self.resetting = True
             self.reset_timer = 100
             self.lives.lose_lives()
@@ -42,6 +62,7 @@ class Pacman:
 
         if (self.collided_ghost is not None and not self.resetting and
                 self.powered):
+            # Pac-Man collided with a ghost while in powered-up state
             self.eating = True
             self.eating_timer = 70
             self.points.sum_points(200)
@@ -49,29 +70,42 @@ class Pacman:
             self.collided_ghost.scared = False
 
     def draw(self):
-        if self.resetting: # Usa frames del 7 al 14
+        """
+           Draw Pac-Man on the screen using the correct animation frame and direction.
+           """
+        if self.resetting: # During reset, use frames 7 to 14
             u = self.animation_frame * 16
-        else:
+        else:# Normal animation
             u = self.animation_frame * 16
-        v = self.direction * 16
-        pyxel.blt(self.x, self.y, 0, u, v, 16, 16, 0)
+        v = self.direction * 16 # Select the row of sprites based on direction
+        pyxel.blt(self.x, self.y, 0, u, v, 16, 16, 0) # Draw Pac-Man
 
     def check_ghost_collision(self, ghosts):
+        """
+               Check for collisions between Pac-Man and any ghosts.
+               :param ghosts: List of ghost objects.
+               :return: Ghost object if collision is detected, else None.
+               """
         pacman_centre_x = self.x + 8
         pacman_centre_y = self.y + 8
         for ghost in ghosts:
             if abs(pacman_centre_x - (ghost.x + 8)) < 8 and abs(
                     pacman_centre_y - (ghost.y + 8)) < 8:
-                return ghost
-        return None
+                return ghost # Return the collided ghost
+        return None # No collision detected
 
     def can_move_to(self, new_x, new_y):
-        # Dimensiones del sprite de Pac-Man (16x16 píxeles)
+        """
+           Check if Pac-Man can move to a new position without colliding with walls.
+           :param new_x: Target x-coordinate.
+           :param new_y: Target y-coordinate.
+           :return: True if movement is allowed, False otherwise.
+           """
+        # Sprite dimensions
         pacman_width = 16
         pacman_height = 16
 
-        # Calcular las esquinas del sprite
-        # También las mitades para evitar bugs
+        # Calculate Pac-Man's collision corners and midpoints
         left_tile_x = int(new_x / TILE_SIZE)
         mid_left_tile_x = int((new_x + 8) / TILE_SIZE)
         right_tile_x = int((new_x + pacman_width - 1) / TILE_SIZE)
@@ -81,11 +115,11 @@ class Pacman:
         bottom_tile_y = int((new_y + pacman_height - 1) / TILE_SIZE)
         mid_bottom_tile_y = int((new_y + pacman_height/2 - 1) / TILE_SIZE)
 
-        # Asegurarse de que los índices están dentro de los límites del mapa
+        # Handle screen teleportation
         max_x = len(self.board.board_map[0])
         max_y = len(self.board.board_map)
 
-        # Ajustar para teletransporte: tratar índices fuera del rango como válidos
+        # Handle screen teleportation
         left_tile_x %= max_x
         right_tile_x %= max_x
         top_tile_y %= max_y
@@ -95,8 +129,7 @@ class Pacman:
         mid_top_tile_y %= max_y
         mid_bottom_tile_y %= max_y
 
-        # Verificar si cualquiera de las esquinas toca un tile de tipo WALL
-        # También verificamos la mitad de los lados para evitar bugs
+        # Check for collisions with walls
         if (
                 self.board.board_map[top_tile_y][left_tile_x] == BoardItem.WALL
                 or self.board.board_map[top_tile_y][mid_left_tile_x] ==
@@ -121,7 +154,9 @@ class Pacman:
         return True
 
     def move(self):
-        # Movimiento basado en las teclas presionadas
+        """
+        Handle Pac-Man's movement based on key inputs.
+        """
         if pyxel.btn(pyxel.KEY_W):  # Mover hacia arriba
             new_y = self.y - self.velocity
             if self.can_move_to(self.x, new_y):
@@ -144,11 +179,12 @@ class Pacman:
                 self.direction = 0
 
     def map_limits(self):
-        # Dimensiones del mapa en píxeles
+        """
+        Handle screen teleportation when Pac-Man crosses map boundaries.
+        """
         map_width = len(self.board.board_map[0]) * TILE_SIZE
         map_height = len(self.board.board_map) * TILE_SIZE
 
-        # Teletransportar a Pac-Man si cruza los bordes
         if self.x < -16:
             self.x = map_width
         elif self.x >= map_width:
@@ -160,7 +196,9 @@ class Pacman:
             self.y = -16
 
     def update_animation_pacman(self):
-        # Animar Pac-Man cuando se está moviendo
+        """
+        Recharge the frame animation.
+        """
         if (
             pyxel.btn(pyxel.KEY_A)
             or pyxel.btn(pyxel.KEY_S)
@@ -177,18 +215,19 @@ class Pacman:
 
     def resetting_animation(self): # 7 al 14
         """
-          Actualiza el frame de animación de muerte.
-          """
-        if pyxel.frame_count % 5 == 0:  # Cambia de sprite cada 5 frames
+        Recharge the frame animation.
+        """
+        if pyxel.frame_count % 5 == 0:
             self.animation_frame += 1
 
-        # Si llegamos al final de los sprites de la animación
-        if self.animation_frame > 15:  # Supongamos que la animación termina
-            # en el frame 14
-            self.animation_frame = 15  # Queda en el último sprite
+        if self.animation_frame > 15:
+            self.animation_frame = 15
 
 
     def check_dot_collision(self):
+        """
+        Check for collisions with dots and power-ups on the board.
+        """
         self.tile_x = int(self.x / TILE_SIZE)
         self.tile_y = int(self.y / TILE_SIZE)
 
@@ -212,6 +251,9 @@ class Pacman:
             self.powered_timer += (10 * 30)
 
     def handle_powered_state(self):
+        """
+        Manage the powered-up state timer.
+        """
         if self.powered:
             self.powered_timer -= 1
             if self.powered_timer <= 0:
@@ -219,6 +261,9 @@ class Pacman:
                 self.powered_timer = 0
 
     def reset(self, board, points):
+        """
+        Resets Everything
+        """
         self.x = board.pacman_grid_x * TILE_SIZE
         self.y = board.pacman_grid_y * TILE_SIZE
         self.tile_x = int(self.x / TILE_SIZE)
