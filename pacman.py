@@ -2,35 +2,70 @@ import pyxel
 from board import BoardItem, TILE_SIZE
 from music import PyxelSounds
 class Pacman:
-    def __init__(self, board, points):
+    def __init__(self, board, points, lives):
         self.x = board.pacman_grid_x * TILE_SIZE
         self.y = board.pacman_grid_y * TILE_SIZE
         self.tile_x = int(self.x / TILE_SIZE)
         self.tile_y = int(self.y / TILE_SIZE)
         self.board = board
         self.points = points
+        self.lives = lives
         self.alive = True
         self.image = 0
         self.powered = False
         self.powered_timer = 0
+        self.resetting = False
+        self.reset_timer = 0
         self.velocity = 2
         self.direction = 0
         self.animation_frame = 0
         self.animation_speed = 1
         self.pyxel_sounds = PyxelSounds()
 
-    def update(self):
+    def update(self, ghosts):
         self.move()
         self.update_animation_pacman()
         self.map_limits()
         self.check_dot_collision()
         self.handle_powered_state()
-        print(self.powered)
+        collided_ghost = self.check_ghost_collision(ghosts)
+        if collided_ghost is not None and not self.resetting:
+            self.resetting = True
+            self.reset_timer = 100
+            self.lives.lose_lives()
+            self.animation_frame = 4
+            print(f"Colisión con: {type(collided_ghost).__name__}")
+
 
     def draw(self):
-        u = self.animation_frame * 16
+        if self.resetting: # Usa frames del 7 al 14
+            u = self.animation_frame * 16
+        else:
+            u = self.animation_frame * 16
         v = self.direction * 16
         pyxel.blt(self.x, self.y, 0, u, v, 16, 16, 0)
+
+    def resetting_animation(self): # 7 al 14
+        """
+          Actualiza el frame de animación de muerte.
+          """
+        if pyxel.frame_count % 5 == 0:  # Cambia de sprite cada 5 frames
+            self.animation_frame += 1
+
+        # Si llegamos al final de los sprites de la animación
+        if self.animation_frame > 15:  # Supongamos que la animación termina
+            # en el frame 14
+            self.animation_frame = 15  # Queda en el último sprite
+
+
+    def check_ghost_collision(self, ghosts):
+        pacman_centre_x = self.x + 8
+        pacman_centre_y = self.y + 8
+        for ghost in ghosts:
+            if abs(pacman_centre_x - (ghost.x + 8)) < 8 and abs(
+                    pacman_centre_y - (ghost.y + 8)) < 8:
+                return ghost
+        return None
 
     def can_move_to(self, new_x, new_y):
         # Dimensiones del sprite de Pac-Man (16x16 píxeles)
@@ -142,13 +177,20 @@ class Pacman:
         else:
             self.animation_frame = self.animation_frame
 
+    """def resetting_animation(self): # 7 al 14
+        self.animation_frame = 7 * 16
+
+        self.resetting_animation_frame = ((self.resetting_animation_frame + 1)
+                                          % (
+            self.animation_speed * 7
+        ))"""
+
+
     def check_dot_collision(self):
         self.tile_x = int(self.x / TILE_SIZE)
         self.tile_y = int(self.y / TILE_SIZE)
 
         if self.board.tilemap.pget(self.tile_x, self.tile_y) == BoardItem.DOTS:
-            print(f"Comiendo punto en: ({self.tile_x}, {self.tile_y})")  #
-            # Depuración
             # Se elimina el dot de la pantalla y se elimina un dot de la
             # lista self.board.dots[].
             self.board.tilemap.pset(self.tile_x, self.tile_y,
@@ -156,7 +198,6 @@ class Pacman:
             self.board.dots.pop()
             self.points.sum_points(10)
             self.pyxel_sounds.play_eat_dot_sound()
-            print(f" Dots restantes: {len(self.board.dots)}")
 
         # Colisión con los powerups
         if (self.board.tilemap.pget(self.tile_x, self.tile_y) ==
@@ -164,7 +205,7 @@ class Pacman:
             self.board.tilemap.pset(self.tile_x, self.tile_y, BoardItem.EMPTY_SPACE)
             self.points.sum_points(50)
             self.pyxel_sounds.play_eat_dot_sound()
-            print(f"Se activó un powerup!")
+            #print(f"Se activó un powerup!")
             self.powered = True
             self.powered_timer += (10 * 30)
 
@@ -174,6 +215,22 @@ class Pacman:
             if self.powered_timer <= 0:
                 self.powered = False
                 self.powered_timer = 0
+
+    def reset(self, board, points):
+        self.x = board.pacman_grid_x * TILE_SIZE
+        self.y = board.pacman_grid_y * TILE_SIZE
+        self.tile_x = int(self.x / TILE_SIZE)
+        self.tile_y = int(self.y / TILE_SIZE)
+        self.board = board
+        self.points = points
+        self.alive = True
+        self.image = 0
+        self.powered = False
+        self.powered_timer = 0
+        self.velocity = 2
+        self.direction = 0
+        self.animation_frame = 0
+        self.animation_speed = 1
 
 
 

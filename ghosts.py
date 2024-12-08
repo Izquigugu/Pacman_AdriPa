@@ -13,6 +13,16 @@ class Ghost:
         self.v = sprite_v #para determinar el color de cada fantasma
         self.animation_frame = 0
 
+    def reset(self, x: int, y: int, board, speed: int = 1, sprite_v: int = 0):
+        self.x = x
+        self.y = y
+        self.board = board
+        self._speed = speed
+        self.direction = random.choice(['up', 'down', 'left', 'right'])
+        self.u = 0
+        self.v = sprite_v  # para determinar el color de cada fantasma
+        self.animation_frame = 0
+
     def update(self):
         self.move()
         self.update_animation_ghost()
@@ -154,18 +164,19 @@ class Ghost:
         elif self.direction == "right":
             self.x += self._speed
 
+
 class Blinky(Ghost):
-    def __init__(self, blinky_x, blinky_y, board):
-        super().__init__(blinky_x, blinky_y, board, speed=1, sprite_v=0)
+    def __init__(self, x, y, board):
+        super().__init__(x, y, board, speed=1, sprite_v=0)
 
 class Pinky(Ghost):
-    def __init__(self, pinky_x, pinky_y, board):
-        super().__init__(pinky_x, pinky_y, board, speed=1, sprite_v=16)
+    def __init__(self, x, y, board):
+        super().__init__(x, y, board, speed=1, sprite_v=16)
 
 class Inky(Ghost):
-    def __init__(selfself, inky_x, inky_y, board):
-        super().__init__(inky_x, inky_y, board, speed=1, sprite_v=32)
+    def __init__(selfself, x, y, board):
+        super().__init__(x, y, board, speed=1, sprite_v=32)
 
 class Clyde(Ghost):
-    def __init__(self, clyde_x, clyde_y, board):
-        super().__init__(clyde_x, clyde_y, board, speed=2, sprite_v=48)
+    def __init__(self, x, y, board):
+        super().__init__(x, y, board, speed=2, sprite_v=48)

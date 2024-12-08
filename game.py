@@ -18,6 +18,9 @@ class Lives:
         # Display the text on the screen
         pyxel.text(self.x, self.y, self.text, pyxel.COLOR_WHITE)
 
+    def lose_lives(self):
+        self.lives -= 1
+
     def change_lives_position(self, tilemap_num):
         self.x = self.MAP_POSITIONS_X[tilemap_num]
         self.y = self.MAP_POSITIONS_Y[tilemap_num]

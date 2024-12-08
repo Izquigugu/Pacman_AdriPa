@@ -32,11 +32,23 @@ class App:
         if pyxel.btnp(pyxel.KEY_Q):
             self.sounds.stop_music()
             pyxel.quit()
+        if self.pacman.resetting:
+            self.pacman.reset_timer -= 1
+            if 0 < self.pacman.reset_timer < 70:
+                self.pacman.resetting_animation()
+            if self.pacman.reset_timer <= 0:
+                self.reset_positions()
+                if self.lives.lives <= 0:
+                    pyxel.quit()
+                self.pacman.resetting = False
+            return
         self.sounds.update(self.pacman.powered)
-        self.pacman.update()
         for ghost in self.ghosts:
             ghost.update()
+        self.pacman.update(self.ghosts)
         self.points.update()
+        self.lives.update()
+
         if len(self.board.dots) == 0:
             self.next_level()
 
@@ -45,14 +57,15 @@ class App:
         self.board.draw()
         if self.current_level < len(self.LEVELS):
             self.pacman.draw()
-            for ghost in self.ghosts:
-                ghost.draw()
+            if not self.pacman.resetting or self.pacman.reset_timer > 80:
+                for ghost in self.ghosts:
+                    ghost.draw()
         self.lives.draw()
         self.points.draw()
 
     def load_level(self, level_index):
         self.board = Board(pyxel.tilemap(self.LEVELS[level_index]))
-        self.pacman = Pacman(self.board, self.points)
+        self.pacman = Pacman(self.board, self.points, self.lives)
         self.ghosts = [Blinky(128, 120, self.board),
                        Pinky(128, 120, self.board),
                        Inky(128, 120, self.board),
@@ -68,5 +81,12 @@ class App:
             print("¡Game completed!")
             self.sounds.stop_music()
             self.board = Board(pyxel.tilemap(3))
+
+    def reset_positions(self):
+        self.pacman.reset(self.board, self.points)
+        self.ghosts[0].reset(128, 120, self.board, speed=1, sprite_v=0)
+        self.ghosts[1].reset(128, 120, self.board, speed=1, sprite_v=16)
+        self.ghosts[2].reset(128, 120, self.board, speed=1, sprite_v=32)
+        self.ghosts[3].reset(128, 120, self.board, speed=2, sprite_v=48)
 
 App()
